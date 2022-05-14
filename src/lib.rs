@@ -110,7 +110,7 @@ pub fn cypher_bytes(mut contenidos: Vec<u8>) -> Vec<u8> {
     resulting_bytes
 }
 
-pub fn met1_armar_matriz(rng: &mut ThreadRng) -> DMatrix<f32> {
+fn met1_armar_matriz(rng: &mut ThreadRng) -> DMatrix<f32> {
     let mut resultado: DMatrix<f32> = dmatrix![].resize(32, 32, 0.0);
 
     let mut switch: [bool; 32] = [false; 32];
@@ -141,7 +141,7 @@ pub fn met1_armar_matriz(rng: &mut ThreadRng) -> DMatrix<f32> {
     resultado
 }
 
-pub fn craft_bytes_matrix() -> DMatrix<f32> {
+fn craft_bytes_matrix() -> DMatrix<f32> {
     let mut bytes: DMatrix<f32> = dmatrix![].resize(8, 32, 0.0);
 
     let mut k = 0;
