@@ -1,6 +1,6 @@
 extern crate nalgebra as na;
 
-use std::fs::{remove_file, OpenOptions};
+use std::fs::OpenOptions;
 use std::io::{Read, Write};
 use std::process::exit;
 
@@ -38,29 +38,28 @@ fn main() {
                 exit(1)
             }
 
-            let mut original_file = OpenOptions::new()
-                .read(true)
-                .write(true)
-                .create(false)
-                .open(&path)
-                .unwrap();
+            let mut contenidos: Vec<u8> = vec![];
+            {
+                let mut original_file = OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .create(false)
+                    .open(&path)
+                    .unwrap();
+
+                original_file.read_to_end(&mut contenidos).unwrap();
+            }
 
             let mut cyphered_file = OpenOptions::new()
                 .write(true)
                 .create(true)
                 .truncate(true)
-                .open(&format!("{}.lcy", &path.display()))
+                .open(&path)
                 .unwrap();
-
-            let mut contenidos: Vec<u8> = vec![];
-
-            original_file.read_to_end(&mut contenidos).unwrap();
 
             let cifrado = lcy_lib::cypher_bytes(contenidos);
 
             cyphered_file.write_all(&cifrado).unwrap();
-
-            remove_file(path).unwrap();
         }
         Commands::Decipher { path } => {
             if !path.exists() {
@@ -68,31 +67,19 @@ fn main() {
                 exit(1)
             }
 
-            let orig_path = path.as_os_str().to_str().unwrap().replace(".lcy", "");
+            let contenidos: Vec<u8> = std::fs::read(&path).unwrap();
 
-            let mut cyphered_file = OpenOptions::new()
-                .read(true)
-                .write(true)
-                .create(false)
-                .open(&path)
-                .unwrap();
+            let descifrado = lcy_lib::decipher_bytes(contenidos);
 
             let mut deciphered_file = OpenOptions::new()
                 .read(true)
                 .write(true)
                 .truncate(true)
                 .create(true)
-                .open(&orig_path)
+                .open(&path)
                 .unwrap();
 
-            let mut contenidos: Vec<u8> = vec![];
-
-            cyphered_file.read_to_end(&mut contenidos).unwrap();
-
-            let descifrado = lcy_lib::decipher_bytes(contenidos);
-
             deciphered_file.write_all(&descifrado).unwrap();
-            remove_file(path).unwrap();
         }
     }
 }
